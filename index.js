@@ -1,11 +1,5 @@
 const { default: makeWASocket, useMultiFileAuthState } = require("@whiskeysockets/baileys")
 const pino = require("pino")
-const readline = require("readline")
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-})
 
 async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState("auth")
@@ -17,11 +11,12 @@ async function startBot() {
 
   sock.ev.on("creds.update", saveCreds)
 
+  // 🔥 حط رقمك هنا
+  const number = "201034110524"
+
   if (!sock.authState.creds.registered) {
-    rl.question("📱 اكتب رقمك (مثال: 201234567890): ", async (number) => {
-      const code = await sock.requestPairingCode(number)
-      console.log("🔑 كود الربط:", code)
-    })
+    const code = await sock.requestPairingCode(number)
+    console.log("🔑 كود الربط:", code)
   }
 
   sock.ev.on("connection.update", (update) => {
