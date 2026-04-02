@@ -1,6 +1,11 @@
 const { default: makeWASocket, useMultiFileAuthState } = require("@whiskeysockets/baileys")
 const pino = require("pino")
-const qrcode = require("qrcode")
+const readline = require("readline")
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+})
 
 async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState("auth")
@@ -12,14 +17,15 @@ async function startBot() {
 
   sock.ev.on("creds.update", saveCreds)
 
-  sock.ev.on("connection.update", async (update) => {
-    const { connection, qr } = update
+  if (!sock.authState.creds.registered) {
+    rl.question("📱 اكتب رقمك (مثال: 201234567890): ", async (number) => {
+      const code = await sock.requestPairingCode(number)
+      console.log("🔑 كود الربط:", code)
+    })
+  }
 
-    if (qr) {
-      console.log("📱 افتح اللينك ده عشان تعمل Scan:")
-      const url = await qrcode.toDataURL(qr)
-      console.log(url) // 🔥 ده هيطلعلك QR كصورة
-    }
+  sock.ev.on("connection.update", (update) => {
+    const { connection } = update
 
     if (connection === "open") {
       console.log("✅ البوت اشتغل!")
