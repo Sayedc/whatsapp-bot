@@ -11,16 +11,19 @@ async function startBot() {
 
   sock.ev.on("creds.update", saveCreds)
 
-  // 🔥 حط رقمك هنا
-  const number = "201034110524"
+  const number = "201034110524" // 👈 رقمك
 
-  if (!sock.authState.creds.registered) {
-    const code = await sock.requestPairingCode(number)
-    console.log("🔑 كود الربط:", code)
-  }
-
-  sock.ev.on("connection.update", (update) => {
+  sock.ev.on("connection.update", async (update) => {
     const { connection } = update
+
+    if (connection === "connecting") {
+      console.log("⏳ جاري الاتصال...")
+
+      if (!sock.authState.creds.registered) {
+        const code = await sock.requestPairingCode(number)
+        console.log("🔑 كود الربط:", code)
+      }
+    }
 
     if (connection === "open") {
       console.log("✅ البوت اشتغل!")
