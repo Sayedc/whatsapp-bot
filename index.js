@@ -1,6 +1,8 @@
 const { default: makeWASocket, useMultiFileAuthState } = require("@whiskeysockets/baileys")
 const pino = require("pino")
 
+let codeRequested = false // 🔥 مهم
+
 async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState("auth")
 
@@ -19,7 +21,8 @@ async function startBot() {
     if (connection === "connecting") {
       console.log("⏳ جاري الاتصال...")
 
-      if (!sock.authState.creds.registered) {
+      if (!sock.authState.creds.registered && !codeRequested) {
+        codeRequested = true // 🔥 يمنع التكرار
         const code = await sock.requestPairingCode(number)
         console.log("🔑 كود الربط:", code)
       }
